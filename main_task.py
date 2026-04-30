@@ -1,3 +1,16 @@
+class Field:
+    def __init__(self, value):
+        self.value = value
+
+class Name(Field):
+    pass
+
+class Phone(Field):
+    def __init__(self, value):
+        if not value.isdigit():
+            raise ValueError("Phone must contain only digits")
+        super().__init__(value)
+
 class Record:
     def __init__(self, name):
         self.name = Name(name)
@@ -20,15 +33,12 @@ class Record:
             raise ValueError("Phone not found")
 
     def edit_phone(self, old_number, new_number):
-       
         phone = self.find_phone(old_number)
         if not phone:
             raise ValueError("Phone not found")
 
-        new_phone = Phone(new_number)
-
         self.remove_phone(old_number)
-        self.phones.append(new_phone)
+        self.phones.append(Phone(new_number))
 
     def __str__(self):
         phones = "; ".join(phone.value for phone in self.phones)
