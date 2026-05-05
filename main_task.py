@@ -1,12 +1,19 @@
+from collections import UserDict
+
 class Field:
     def __init__(self, value):
         self.value = value
+
+    def __str__(self):
+        return str(self.value)
+
 class Name(Field):
     pass
+
 class Phone(Field):
     def __init__(self, value):
-        if not value.isdigit():
-            raise ValueError("Phone must contain only digits")
+        if not (value.isdigit() and len(value) == 10):
+            raise ValueError("Phone number must contain 10 digits")
         super().__init__(value)
 
 class Record:
@@ -31,30 +38,30 @@ class Record:
             raise ValueError("Phone not found")
 
     def edit_phone(self, old_number, new_number):
-        phone = self.find_phone(old_number)
-        if not phone:
-            raise ValueError("Phone not found")
+        new_phone_obj = Phone(new_number)
+        
+        phone_to_edit = self.find_phone(old_number)
+        if not phone_to_edit:
+            raise ValueError(f"Phone {old_number} not found")
 
         self.remove_phone(old_number)
-        self.phones.append(Phone(new_number))
+        self.phones.append(new_phone_obj)
 
     def __str__(self):
-        phones = "; ".join(phone.value for phone in self.phones)
-        return f"Contact name: {self.name.value}, phones: {phones}"
+        return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}"
 
-
-class AddressBook(dict):
+class AddressBook(UserDict):
     def add_record(self, record):
-        self[record.name.value] = record
+        self.data[record.name.value] = record
 
     def find(self, name):
-        return self.get(name)
+        return self.data.get(name)
 
     def delete(self, name):
-        if name in self:
-            del self[name]
+        if name in self.data:
+            del self.data[name]
 
-    def iterator(self, page_size=2):
-        records = list(self.values())
-        for i in range(0, len(records), page_size):
-            yield records[i:i + page_size]
+    def __str__(self):
+        if not self.data:
+            return "AddressBook is empty"
+        return "\n".join(str(record) for record in self.data.values())
